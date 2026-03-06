@@ -1,8 +1,7 @@
 "use client";
 
-import { useScroll, useTransform, useMotionValueEvent, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useScroll, useTransform, useMotionValueEvent, motion, MotionValue } from "framer-motion";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 const FRAME_COUNT = 200;
 
@@ -62,7 +61,7 @@ export default function CarScroll() {
         loadImages();
     }, []);
 
-    const drawFrame = (index: number) => {
+    const drawFrame = useCallback((index: number) => {
         if (!canvasRef.current || images.length === 0) return;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
@@ -94,7 +93,7 @@ export default function CarScroll() {
         ctx.fillStyle = "#0a0a0a";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, offsetX, offsetY, renderWidth, renderHeight);
-    };
+    }, [images]);
 
     useEffect(() => {
         const resizeCanvas = () => {
@@ -109,7 +108,7 @@ export default function CarScroll() {
         resizeCanvas();
 
         return () => window.removeEventListener("resize", resizeCanvas);
-    }, [loading, images]);
+    }, [loading, drawFrame, frameIndex]);
 
     useMotionValueEvent(frameIndex, "change", (latest) => {
         if (!loading) drawFrame(latest);
@@ -170,7 +169,7 @@ export default function CarScroll() {
     );
 }
 
-function TextOverlays({ progress }: { progress: any }) {
+function TextOverlays({ progress }: { progress: MotionValue<number> }) {
     // Hero: "LA ROSE NOIRE"
     const heroOpacity = useTransform(progress, [0, 0.1], [1, 0]);
     const heroY = useTransform(progress, [0, 0.1], [0, -50]);
