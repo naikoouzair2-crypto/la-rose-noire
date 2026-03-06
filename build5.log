@@ -1,0 +1,34 @@
+
+> la-rose-noire@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.15
+
+   Creating an optimized production build ...
+
+> Build error occurred
+Error: Cannot find module 'next/dist/pages/_app'
+Require stack:
+- E:\3D web\la-rose-noire\node_modules\next\dist\build\entries.js
+- E:\3D web\la-rose-noire\node_modules\next\dist\build\webpack-config.js
+- E:\3D web\la-rose-noire\node_modules\next\dist\build\webpack-build\impl.js
+- E:\3D web\la-rose-noire\node_modules\next\dist\compiled\jest-worker\processChild.js
+    at Module.<anonymous> (node:internal/modules/cjs/loader:1421:15)
+    at E:\3D web\la-rose-noire\node_modules\next\dist\server\require-hook.js:55:36
+    at require.resolve (node:internal/modules/helpers:163:19)
+    at getPageFilePath (E:\3D web\la-rose-noire\node_modules\next\dist\build\entries.js:181:20)
+    at E:\3D web\la-rose-noire\node_modules\next\dist\build\entries.js:403:34
+    at Array.map (<anonymous>)
+    at createEntrypoints (E:\3D web\la-rose-noire\node_modules\next\dist\build\entries.js:549:50)
+    at E:\3D web\la-rose-noire\node_modules\next\dist\build\webpack-build\impl.js:104:126
+    at Span.traceAsyncFn (E:\3D web\la-rose-noire\node_modules\next\dist\trace\trace.js:154:26)
+    at webpackBuildImpl (E:\3D web\la-rose-noire\node_modules\next\dist\build\webpack-build\impl.js:104:78) {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    'E:\\3D web\\la-rose-noire\\node_modules\\next\\dist\\build\\entries.js',
+    'E:\\3D web\\la-rose-noire\\node_modules\\next\\dist\\build\\webpack-config.js',
+    'E:\\3D web\\la-rose-noire\\node_modules\\next\\dist\\build\\webpack-build\\impl.js',
+    'E:\\3D web\\la-rose-noire\\node_modules\\next\\dist\\compiled\\jest-worker\\processChild.js'
+  ]
+}
