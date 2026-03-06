@@ -10,7 +10,6 @@ export default function CarScroll() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [images, setImages] = useState<HTMLImageElement[]>([]);
     const [loading, setLoading] = useState(true);
-    const [progress, setProgress] = useState(0);
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -30,35 +29,64 @@ export default function CarScroll() {
     }, [loading]);
 
     useEffect(() => {
+        let isMounted = true;
+
         const loadImages = async () => {
-            const loadedImages: HTMLImageElement[] = [];
-            let loadedCount = 0;
+            const loadedImages: HTMLImageElement[] = new Array(FRAME_COUNT).fill(null);
 
-            for (let i = 1; i <= FRAME_COUNT; i++) {
-                const img = new window.Image();
-                const paddedIndex = i.toString().padStart(3, "0");
-                img.src = `/frames/frame-${paddedIndex}.jpg`;
+            // 1. Load the very first frame to show immediately
+            const firstImg = new window.Image();
+            firstImg.src = `/frames/frame-001.jpg`;
 
-                await new Promise<void>((resolve) => {
-                    img.onload = () => {
-                        loadedCount++;
-                        setProgress(Math.round((loadedCount / FRAME_COUNT) * 100));
-                        loadedImages.push(img);
-                        resolve();
-                    };
-                    img.onerror = () => {
-                        console.error(`Failed to load frame ${i}`);
-                        loadedImages.push(img); // Push empty/broken img to maintain index
-                        resolve();
-                    };
-                });
-            }
+            await new Promise<void>((resolve) => {
+                firstImg.onload = () => {
+                    loadedImages[0] = firstImg;
+                    resolve();
+                };
+                firstImg.onerror = () => resolve();
+            });
 
-            setImages(loadedImages);
+            if (!isMounted) return;
+
+            // 2. Hide preloader and show first frame instantly!
+            setImages([...loadedImages]);
             setLoading(false);
+
+            // 3. Silently load the remaining frames sequentially in the background
+            const loadBackgroundFrames = async () => {
+                for (let i = 2; i <= FRAME_COUNT; i++) {
+                    if (!isMounted) break;
+
+                    const img = new window.Image();
+                    const paddedIndex = i.toString().padStart(3, "0");
+                    img.src = `/frames/frame-${paddedIndex}.jpg`;
+
+                    await new Promise<void>((resolve) => {
+                        img.onload = () => {
+                            loadedImages[i - 1] = img;
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            loadedImages[i - 1] = img;
+                            resolve();
+                        };
+                    });
+
+                    // Update the images state periodically to make new frames available to the scroller
+                    if (isMounted && (i % 10 === 0 || i === FRAME_COUNT)) {
+                        setImages([...loadedImages]);
+                    }
+                }
+            };
+
+            loadBackgroundFrames();
         };
 
         loadImages();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     const drawFrame = useCallback((index: number) => {
@@ -151,9 +179,6 @@ export default function CarScroll() {
                     </div>
                     <p className="font-mono text-sm tracking-[0.3em] text-white/70">
                         ASSEMBLING
-                    </p>
-                    <p className="mt-2 font-mono text-xs text-crimson">
-                        {progress}%
                     </p>
                 </div>
             )}
